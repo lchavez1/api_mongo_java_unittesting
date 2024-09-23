@@ -10,10 +10,12 @@ public interface IMoviesService {
     Movie createMovie(Movie movie);
     List<Movie> findAllMovies();
 
-    List<Movie> findAllMoviesByDigit(String digit);
+    List<Movie> findMovieByQueryParams(String name, String description, Float score, String digit);
     Optional<Movie> findMovieById(Integer id);
 
     void deleteMovie(Integer id);
 
     Boolean existMovie(Integer id);
+
+
 }

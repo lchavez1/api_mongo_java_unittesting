@@ -29,12 +29,6 @@ public class MovieController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @GetMapping("/starts/{d}")
-    public ResponseEntity<?> findAllMoviesStartsWithDigit(@PathVariable String d) {
-        List<Movie> list = movieService.findAllMoviesByDigit(d);
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> findMovieById(@PathVariable Integer id) {
         Optional<Movie> movie = movieService.findMovieById(id);
@@ -51,5 +45,13 @@ public class MovieController {
     public ResponseEntity<?> existMovie(@PathVariable Integer id) {
         Boolean response = movieService.existMovie(id);
         return  new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/query")
+    public List<Movie> findByDescription(@RequestParam(name = "name", required = false) String name,
+                                         @RequestParam(name = "description", required = false) String description,
+                                         @RequestParam(name = "score", required = false) Float score,
+                                         @RequestParam(name = "startsWith", required = false) String digit) {
+        return movieService.findMovieByQueryParams(name, description, score, digit);
     }
 }

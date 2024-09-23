@@ -13,6 +13,7 @@ public class MovieService implements IMoviesService{
 
     @Autowired
     IMoviesRepository iMoviesRepository;
+
     @Override
     public Movie createMovie(Movie movie) {
         return iMoviesRepository.save(movie);
@@ -24,7 +25,35 @@ public class MovieService implements IMoviesService{
     }
 
     @Override
-    public List<Movie> findAllMoviesByDigit(String digit) {
+    public List<Movie> findMovieByQueryParams(String name, String description, Float score, String digit) {
+        if (name != null) {
+            return findMoviesByName(name);
+        } else if (description != null) {
+            return findByMoviesDescription(description);
+        } else if (score != null) {
+            return findMoviesByScoreGreaterThan8(score);
+        } else if (digit != null) {
+            return findAllMoviesByDigit(digit);
+        } else {
+            return findAllMovies();
+        }
+    }
+
+    private List<Movie> findByMoviesDescription(String description) {
+        return iMoviesRepository.findByDescriptionLike(description);
+    }
+
+    public List<Movie> findMoviesByName(String name) {
+        return iMoviesRepository.findByTheMovieName(name);
+    }
+
+
+    private List<Movie> findMoviesByScoreGreaterThan8(Float score) {
+        return iMoviesRepository.findByScoreGreaterThan(score);
+    }
+
+    // find movies that starts with any digit
+    private List<Movie> findAllMoviesByDigit(String digit) {
         return iMoviesRepository.findAll().stream().filter(movie -> movie.getName().startsWith(digit)).toList();
     }
 
@@ -41,4 +70,6 @@ public class MovieService implements IMoviesService{
     public Boolean existMovie(Integer id){
         return iMoviesRepository.existsById(id);
     }
+
+
 }
