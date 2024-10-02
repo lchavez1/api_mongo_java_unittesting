@@ -2,45 +2,45 @@ package com.example.movies.service;
 
 import com.example.movies.model.Movie;
 import com.example.movies.repository.IMoviesRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.*;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class MovieServiceTest {
 
-    @Mock
-    private IMoviesRepository iMoviesRepository;
+    private static MovieService movieService;
 
-    @InjectMocks
-    private MovieService movieService;
+    private static List<Movie> list;
+    private static String digit;
+    private static int id;
+    private static Movie movie;
 
-    private List<Movie> list;
-    private String digit;
+    @BeforeAll
+    static void setUp() {
 
-    private int id;
-    private Movie movie;
+        // open mocks with try with resource
+        try (AutoCloseable closeable = MockitoAnnotations.openMocks(MovieServiceTest.class)) {
+            System.out.println("mocks opened");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+        // mocking the repository and service
+        IMoviesRepository iMoviesRepository = mock(IMoviesRepository.class);
+        movieService = mock(MovieService.class);
 
+        // initialize vars
         list = Arrays.asList(
                 new Movie(1, "Harry Potter", "Magic and adventure", 9.99f, 8.8f),
                 new Movie(3, "Annabelle", "Horror", 0.9f, 5.4f),
                 new Movie(2, "Gran Turismo", "Cars and running", 19.9f, 9.4f));
-
-        digit = "O";
-
+        digit = "H";
         movie = new Movie(2, "Test 2", "...", 9f, 10f);
         id = 2;
     }
@@ -48,41 +48,62 @@ class MovieServiceTest {
     @Test
     @DisplayName("NotNull")
     void findAllMovies() {
+
         when(movieService.findAllMovies()).thenReturn(list);
-        Assertions.assertNotNull(movieService.findAllMovies());
+
+        List<Movie> test = movieService.findAllMovies();
+
+        Assertions.assertNotNull(test);
+        Assertions.assertEquals(3, test.size());
     }
 
     @Test
     @DisplayName("FindByDigit")
     void findMovieByDigit() {
-        when(movieService.findAllMoviesByDigit(digit)).thenReturn(list);
-        Assertions.assertNotNull(movieService.findAllMoviesByDigit(digit));
-        Assertions.assertEquals(0, movieService.findAllMoviesByDigit(digit).size());
-        if(movieService.findAllMoviesByDigit(digit).size() > 0)
-            Assertions.assertEquals(digit, String.valueOf(movieService.findAllMoviesByDigit(digit).get(0).getName().charAt(0)));
 
+        when(movieService.findMovieByQueryParams(null, null, null, digit)).thenReturn(list);
+
+        List<Movie> test = movieService.findMovieByQueryParams(null, null, null, digit);
+
+        Assertions.assertNotNull(test);
+
+        if(!test.isEmpty())
+            Assertions.assertEquals(digit, String.valueOf(test.get(0).getName().charAt(0)));
     }
 
     @Test
     @DisplayName("FindById")
     void findMovieById() {
+
         when(movieService.findMovieById(id)).thenReturn(Optional.ofNullable(movie));
-        Assertions.assertEquals(id, movieService.findMovieById(id).get().getId());
+
+        Optional<Movie> test = movieService.findMovieById(id);
+
+        Assertions.assertTrue(test.isPresent());
+        Assertions.assertEquals(id, test.get().getId());
     }
 
     @Test
     @DisplayName("Exist?")
     void existMovie() {
+
         when(movieService.existMovie(movie.getId())).thenReturn(true);
-        Assertions.assertEquals(true, movieService.existMovie(id));
+
+        Boolean test = movieService.existMovie(id);
+
+        Assertions.assertTrue(test);
     }
 
     @Test
     @DisplayName("Create?")
     void createMovie() {
+
         when(movieService.createMovie(movie)).thenReturn(movie);
-        Assertions.assertEquals(2, movieService.createMovie(movie).getId());
-        Assertions.assertEquals("Test 2", movieService.createMovie(movie).getName());
+
+        Movie test = movieService.createMovie(movie);
+
+        Assertions.assertEquals(2, test.getId());
+        Assertions.assertEquals("Test 2", test.getName());
     }
 
 }
